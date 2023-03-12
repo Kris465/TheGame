@@ -21,7 +21,7 @@ class ViewConsole:
 
     def move(self):
         try:
-            move = int(input(f'1. Движение\n2. Атака\n'))
+            move = int(input(f'1. Движение\n2. Атака\n3. Выход\n'))
             if int(move) == 1:
                 move_side = int(input('1. Влево\n2. Вниз\n3. Вверх\n4. Вправо\n'))
                 if 0 < move_side < 5:
@@ -30,11 +30,15 @@ class ViewConsole:
                     self.validation()
             elif move == 2:
                 self.damage(self.controller.attack())
+            elif move == 3:
+                exit()
             else:
                 self.validation()
+            self.controller.is_dead()
             self.display_info()
-        except:
-            raise Exception(self.validation())
+        except Exception as e:
+            print(e)
+            self.move()
 
     @staticmethod
     def validation():
