@@ -1,5 +1,6 @@
 from random import randint
 
+from Character import CharacterAttack, CharacterReview, CharacterMove
 from Field import Field
 from Player import Player
 from characters import Characters
@@ -19,13 +20,13 @@ class Controller:
 
     def review(self):
         for ch in self.get_characters():
-            ch.review_attr = ch.review()
+            ch.review_attr = CharacterReview(ch).review()
 
     def attack(self):
         self.review()
         for ch in self.get_characters():
             if isinstance(ch, Player):
-                return ch.attack(self.get_characters(), ch.review_attr)
+                return CharacterAttack(ch).attack(self.get_characters())
 
     def is_dead(self):
         self.field_update()
@@ -35,7 +36,8 @@ class Controller:
         self.review()
         for ch in self.get_characters():
             if isinstance(ch, Player):
-                ch.move(self.field, move_side, ch.review_attr)
+                CharacterMove(ch).move(self.field, move_side)
+                # ch.move(self.field, move_side, ch.review_attr)
         self.field_update()
 
     def field_update(self):

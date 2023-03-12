@@ -42,47 +42,62 @@ class Character:
         self._place = None
         self.review_attr = None
 
-    def attack(self, characters: list, review: dict):
-        damage = random.randint(0, self._attack)
-        for character in characters:
-            for key, value in review.items():
-                if key != 'cp' and review[key] == character.place:
-                    return character._get_damage(damage)
-        return None
 
-    def _get_damage(self, damage):
-        self._hp -= damage
-        if self._hp <= 0:
-            self._sign = '-'
-        return self
+class CharacterMove:
+    def __init__(self, character: Character):
+        self.character = character
 
     def _move_side(self, field, pos_cur, pos_new):
         if 0 <= pos_new[0] <= field.size - 1 and 0 <= pos_new[1] <= field.size - 1:
-            field.field[pos_new[0]][pos_new[1]] = self._sign
+            field.field[pos_new[0]][pos_new[1]] = self.character.sign
             field.field[pos_cur[0]][pos_cur[1]] = '-'
-            self._place = pos_new
+            self.character._place = pos_new
         else:
-            field.field[pos_cur[0]][pos_cur[1]] = self._sign
+            field.field[pos_cur[0]][pos_cur[1]] = self.character.sign
         return field
 
-    def move(self, field, move, review: dict):
+    def move(self, field, move: int):
         match move:
             case Move.LEFT.value:
-                return self._move_side(field, review['cp'], review['left'])
+                return self._move_side(field, self.character.review_attr['cp'], self.character.review_attr['left'])
             case Move.DOWN.value:
-                return self._move_side(field, review['cp'], review['down'])
+                return self._move_side(field, self.character.review_attr['cp'], self.character.review_attr['down'])
             case Move.UP.value:
-                return self._move_side(field, review['cp'], review['up'])
+                return self._move_side(field, self.character.review_attr['cp'], self.character.review_attr['up'])
             case Move.RIGHT.value:
-                return self._move_side(field, review['cp'], review['right'])
+                return self._move_side(field, self.character.review_attr['cp'], self.character.review_attr['right'])
 
-    def review(self):
-        step = self._step
+
+class CharacterReview:
+    def __init__(self, character: Character):
+        self.character = character
+
+    def review(self) -> dict:
+        step = self.character._step
         cp = {}
-        x, y = self._place
-        cp['cp'] = self._place
+        x, y = self.character._place
+        cp['cp'] = self.character._place
         cp['left'] = [x, y - step]
         cp['down'] = [x + step, y]
         cp['up'] = [x - step, y]
         cp['right'] = [x, y + step]
         return cp
+
+
+class CharacterAttack:
+    def __init__(self, character: Character):
+        self.character = character
+
+    def attack(self, characters: list) -> Character:
+        damage = random.randint(0, self.character.attack_power)
+        for character in characters:
+            for key, value in self.character.review_attr.items():
+                if key != 'cp' and self.character.review_attr[key] == character.place:
+                    return self._get_damage(character, damage)
+        return None
+
+    def _get_damage(self, character: Character, damage: int) -> Character:
+        character._hp -= damage
+        if character._hp <= 0:
+            character._sign = '-'
+        return character
