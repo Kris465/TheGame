@@ -1,11 +1,13 @@
 import random
 
 from move import Move
+from typing import TypeVar
 
+T = TypeVar("Character")
 
 class Character:
     @property
-    def name(self) -> int:  # возможно тут надо стринг
+    def name(self) -> str:
         return self._name
 
     @property
@@ -21,18 +23,18 @@ class Character:
         return self._attack
 
     @property
-    def place(self):
+    def place(self) -> list:
         return self._place
 
     @place.setter
-    def place(self, item):
+    def place(self, item) -> None:
         self._place = item
 
     @property
-    def sign(self):
+    def sign(self) -> str:
         return self._sign
 
-    def __init__(self, character) -> None:
+    def __init__(self, character: T) -> None:
         self._name = '' if character._name is None else character._name
         self._base_hp = character._hp
         self._hp = self._base_hp
@@ -41,22 +43,22 @@ class Character:
         self._step = character._step
         self._place = None
 
-    def attack(self, characters: list, review: dict):
+    def attack(self, characters: list, review: dict) -> T:
         damage = random.randint(0, self._attack)
         for character in characters:
             for key, value in review.items():
                 if key != 'cp' and review[key] == character.place:
-                    return character.__get_damage(damage)
+                    return character._get_damage(damage)
         return None
 
 
-    def __get_damage(self, damage):
+    def _get_damage(self, damage: int) -> T:
         self._hp -= damage
         if self._hp <= 0:
             self._sign = '-'
         return self
 
-    def __move_side(self, field, pos_cur, pos_new):
+    def _move_side(self, field, pos_cur: list, pos_new: list) -> list:
         if 0 <= pos_new[0] <= field.size -1 and 0 <= pos_new[1] <= field.size -1:
             field.field[pos_new[0]][pos_new[1]] = self._sign
             field.field[pos_cur[0]][pos_cur[1]] = '-'
@@ -65,18 +67,18 @@ class Character:
             field.field[pos_cur[0]][pos_cur[1]] = self._sign
         return field
 
-    def move(self, field, move, review: dict):
+    def move(self, field, move, review: dict) -> list:
         match move:
             case Move.LEFT.value:
-                return self.move_side(field, review['cp'], review['left'])
+                return self._move_side(field, review['cp'], review['left'])
             case Move.DOWN.value:
-                return self.move_side(field, review['cp'], review['down'])
+                return self._move_side(field, review['cp'], review['down'])
             case Move.UP.value:
-                return self.move_side(field, review['cp'], review['up'])
+                return self._move_side(field, review['cp'], review['up'])
             case Move.RIGHT.value:
-                return self.move_side(field, review['cp'], review['right'])
+                return self._move_side(field, review['cp'], review['right'])
 
-    def review(self):
+    def review(self) -> dict:
         step = self._step
         cp = {}
         x, y = self._place
